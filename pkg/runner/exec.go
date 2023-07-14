@@ -93,8 +93,19 @@ func runBenchmark(cfg config.Config, clusterMetadata ocpmetadata.ClusterMetadata
 		aggAvgLatency += result.AvgLatency
 		aggP99Latency += result.P99Latency
 		log.Infof("Rps=%.0f avgLatency=%.0f μs P99Latency=%.0f μs", result.TotalAvgRps, result.AvgLatency, result.P99Latency)
+		log.Infof("Summary: Rps=%.2f req/s avgLatency=%.2f μs P99Latency=%.2f μs", result.TotalAvgRps, result.AvgLatency, result.P99Latency)
+		pretty, _ := result.PrettyPrint()
+		fmt.Println(pretty)
+		log.Infof("Sample for %s %d requests/s avgLatency=%vms P99Latency=%vms timeouts=%v httperrors=%v",
+			cfg.Termination,
+			int64(result.TotalAvgRps),
+			time.Duration(int64(result.AvgLatency*1e3)).Milliseconds(),
+			time.Duration(int64(result.P99Latency*1e3)).Milliseconds(),
+			result.Timeouts,
+			result.HTTPErrors)
+
 		benchmarkResult = append(benchmarkResult, result)
-		if cfg.Delay != 0 {
+		if cfg.Delay != 0 && i < cfg.Samples {
 			log.Info("Sleeping for ", cfg.Delay)
 			time.Sleep(cfg.Delay)
 		}

@@ -109,6 +109,31 @@ func Start(uuid, baseUUID, baseIndex string, tolerancy int, indexer *indexers.In
 		if benchmarkResult, err = runBenchmark(cfg, clusterMetadata); err != nil {
 			return err
 		}
+
+		var totalAvgLatency float64
+		var totalAvgRps float64
+		var totalErrors int64
+		var totalP99Latency float64
+		var totalTimeouts int64
+		for _, b := range benchmarkResult {
+			totalAvgLatency += b.AvgLatency
+			totalAvgRps += b.TotalAvgRps
+			totalErrors += b.HTTPErrors
+			totalP99Latency += b.P99Latency
+			totalTimeouts += b.Timeouts
+		}
+		nsamples := float64(len(benchmarkResult))
+		avgLatency := time.Duration((totalAvgLatency / nsamples) * 1e3)
+		p99Latency := time.Duration((totalP99Latency / nsamples) * 1e3)
+		log.Infof("Overall for %s samples=%v %d requests/s avgLatency=%dms P99Latency=%dms sum(timeouts)=%v sum(httperrors)=%v",
+			cfg.Termination,
+			nsamples,
+			int64(totalAvgRps/nsamples),
+			avgLatency.Milliseconds(),
+			p99Latency.Milliseconds(),
+			totalTimeouts,
+			totalErrors)
+
 		if indexer != nil {
 			if !cfg.Warmup {
 				var benchmarkResultDocuments []interface{}

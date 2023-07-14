@@ -18,7 +18,7 @@ CGO = 0
 
 .PHONY: build lint clean
 
-all: lint build
+all: build
 
 build: $(BIN_PATH)
 

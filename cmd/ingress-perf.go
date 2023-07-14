@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/cloud-bulldozer/go-commons/indexers"
 	"github.com/cloud-bulldozer/go-commons/version"
@@ -45,6 +46,15 @@ var versionCmd = &cobra.Command{
 }
 
 func run() *cobra.Command {
+	log.SetFormatter(&log.TextFormatter{
+		ForceColors:            false,
+		DisableTimestamp:       false,
+		DisableLevelTruncation: true,
+		FullTimestamp:          false,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			return "", ""
+		},
+	})
 	var cfg, uuid, baseUUID, esServer, esIndex, logLevel, baseIndex, resultsDir string
 	var cleanup bool
 	var tolerancy int

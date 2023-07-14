@@ -15,6 +15,7 @@
 package tools
 
 import (
+	"encoding/json"
 	"time"
 
 	ocpmetadata "github.com/cloud-bulldozer/go-commons/ocp-metadata"
@@ -66,4 +67,12 @@ type Result struct {
 	Timeouts     int64         `json:"timeouts"`
 	Version      string        `json:"version"`
 	ocpmetadata.ClusterMetadata
+}
+
+func (r *Result) PrettyPrint() (string, error) {
+	prettyJSON, err := json.MarshalIndent(*r, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	return string(prettyJSON), nil
 }
