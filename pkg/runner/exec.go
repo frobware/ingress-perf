@@ -132,28 +132,24 @@ func exec(ctx context.Context, wg *sync.WaitGroup, tool tools.Tool, pod corev1.P
 	}, scheme.ParameterCodec)
 	exec, err := remotecommand.NewSPDYExecutor(restConfig, "POST", req.URL())
 	if err != nil {
-		log.Error(err.Error())
-		return
+		panic(err)
 	}
 	err = exec.StreamWithContext(ctx, remotecommand.StreamOptions{
 		Stdout: &stdout,
 		Stderr: &stderr,
 	})
 	if err != nil {
-		log.Errorf("Exec failed, skipping: %v", err.Error())
-		return
+		panic(err)
 	}
 	podResult, err := tool.ParseResult(stdout.String(), stderr.String())
 	if err != nil {
-		log.Errorf("Result parsing failed, skipping: %v", err.Error())
-		return
+		panic(err)
 	}
 	podResult.Name = pod.Name
 	podResult.Node = pod.Spec.NodeName
 	node, err := clientSet.CoreV1().Nodes().Get(context.TODO(), podResult.Node, metav1.GetOptions{})
 	if err != nil {
-		log.Errorf("Couldn't fetch node: %v", err.Error())
-		return
+		panic(err)
 	}
 	if d, ok := node.Labels["node.kubernetes.io/instance-type"]; ok {
 		podResult.InstanceType = d
